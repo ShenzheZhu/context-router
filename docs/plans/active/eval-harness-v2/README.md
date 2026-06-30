@@ -269,6 +269,17 @@ to upstream `main`.
 Each phase PR should link its issue, include verification commands, and avoid
 expanding scope into the next phase.
 
+## Operating Rules
+
+- Treat task shift as a serious failure mode. Work should follow the planned
+  Harbor-based route unless a new issue or explicit checkpoint changes the
+  route. If a new idea appears, record it as a follow-up instead of silently
+  expanding the active phase.
+- Treat code style and repository hygiene as part of correctness. Do not add or
+  keep unused files, speculative abstractions, stale comments, debug artifacts,
+  or redundant wrappers. Prefer the smallest Harbor-native implementation that
+  satisfies the current issue.
+
 ## Verification Strategy
 
 - Phase 0: docs diff, Harbor capability check, stale-reference search, and issue
