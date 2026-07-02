@@ -82,6 +82,13 @@ default to `--agent-timeout-sec 86400`, `--verifier-timeout-sec 86400`, and
 `timeouts`, so experiment reports can disclose them instead of relying on local
 defaults.
 
+Codex web search is disabled by default for benchmark soundness. Generated jobs
+write `web_search: disabled` into Harbor's Codex agent kwargs, which Harbor
+passes to Codex as `web_search=disabled`. Use `--codex-web-search cached|live`
+only for experiments that explicitly study external search. The report scripts
+scan Codex traces and mark any `web_search` item as an artifact/tool-policy
+failure.
+
 Run the no-memory baseline:
 
 ```bash
@@ -478,6 +485,7 @@ python3 examples/eval-harbor/scripts/build_dynamicmem_task.py \
   --stage-pattern update-answer-every-checkpoint \
   --model gpt-5.4-mini \
   --reasoning-effort high \
+  --codex-web-search disabled \
   --agent-timeout-sec 86400 \
   --verifier-timeout-sec 86400 \
   --build-timeout-sec 600
@@ -495,6 +503,7 @@ python3 examples/eval-harbor/scripts/build_dynamicmem_suite.py \
   --arms-config examples/eval-harbor/arms/dynamicmem-default.json \
   --model gpt-5.4-mini \
   --reasoning-effort high \
+  --codex-web-search disabled \
   --agent-timeout-sec 86400 \
   --verifier-timeout-sec 86400 \
   --build-timeout-sec 600 \
@@ -583,6 +592,7 @@ python3 examples/eval-harbor/scripts/build_dynamicmem_suite.py \
   --arms-config examples/eval-harbor/arms/dynamicmem-default.json \
   --model gpt-5.4-mini \
   --reasoning-effort high \
+  --codex-web-search disabled \
   --agent-timeout-sec 86400 \
   --verifier-timeout-sec 86400 \
   --build-timeout-sec 600 \
@@ -601,6 +611,7 @@ python3 examples/eval-harbor/scripts/build_dynamicmem_suite.py \
   --arms-config examples/eval-harbor/arms/dynamicmem-default.json \
   --model gpt-5.4-mini \
   --reasoning-effort high \
+  --codex-web-search disabled \
   --agent-timeout-sec 86400 \
   --verifier-timeout-sec 86400 \
   --build-timeout-sec 600 \
