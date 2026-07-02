@@ -54,6 +54,7 @@ def summarize_sample(mode: str, sample_dir: Path) -> dict[str, Any]:
         "validationErrors": row.get("validationErrors", []),
         "model": row.get("model"),
         "reasoningEffort": row.get("reasoningEffort"),
+        "serviceTier": row.get("serviceTier", "standard"),
         "codexWebSearch": row.get("codexWebSearch"),
         "inputTokens": row.get("inputTokens"),
         "outputTokens": row.get("outputTokens"),
@@ -103,6 +104,8 @@ def aggregate_samples(samples: list[dict[str, Any]]) -> dict[str, Any]:
                 "reward",
                 "llmStateMeanScore",
                 "llmServiceMeanScore",
+                "inputTokens",
+                "outputTokens",
                 "totalTokens",
                 "costUsd",
             )
@@ -123,6 +126,12 @@ def aggregate_samples(samples: list[dict[str, Any]]) -> dict[str, Any]:
             str(sample.get("reasoningEffort"))
             for sample in samples
             if sample.get("reasoningEffort") not in (None, "")
+        }
+    )
+    service_tiers = sorted(
+        {
+            str(sample.get("serviceTier") or "standard")
+            for sample in samples
         }
     )
     codex_web_search_policies = sorted(
@@ -180,6 +189,7 @@ def aggregate_samples(samples: list[dict[str, Any]]) -> dict[str, Any]:
         "disallowedToolFailures": disallowed_tool_failures,
         "policyFailures": policy_failures,
         "reasoningEfforts": reasoning_efforts,
+        "serviceTiers": service_tiers,
         "codexWebSearchPolicies": codex_web_search_policies,
         "timeoutLabels": timeout_labels,
     }
@@ -230,8 +240,8 @@ def markdown_report(payload: dict[str, Any]) -> str:
     lines = [
         "# Harbor DynamicMem Resampling Report",
         "",
-        "| Task | Arm | Reasoning Effort | Web Search | Timeout A/V/B (s) | Samples | Reward Mean | Reward Std | Reward Min | Reward Max | Field Acc. Mean | LLM State Mean | LLM Service Mean | Input Tok Mean | Output Tok Mean | Total Tok Mean | Cost Mean | Cost Total | Runtime Mean (s) | Perfect Samples | Parse Fail | Metadata Fail | Missing Metric Fail | Artifact Fail | Tool Fail | Policy Fail |",
-        "| --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Task | Arm | Reasoning Effort | Service Tier | Web Search | Timeout A/V/B (s) | Samples | Reward Mean | Reward Std | Reward Min | Reward Max | Field Acc. Mean | LLM State Mean | LLM Service Mean | Input Tok Mean | Output Tok Mean | Total Tok Mean | Cost Mean | Cost Total | Runtime Mean (s) | Perfect Samples | Parse Fail | Metadata Fail | Missing Metric Fail | Artifact Fail | Tool Fail | Policy Fail |",
+        "| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for task in payload["tasks"]:
         for arm in task["arms"]:
@@ -246,10 +256,11 @@ def markdown_report(payload: dict[str, Any]) -> str:
             cost = aggregate["costUsd"]
             runtime = aggregate["runtimeSeconds"]
             lines.append(
-                "| {task} | {mode} | {reasoning_effort} | {web_search} | {timeouts} | {samples} | {reward_mean} | {reward_std} | {reward_min} | {reward_max} | {acc_mean} | {state_mean} | {service_mean} | {input_tokens} | {output_tokens} | {total_tokens} | {cost_mean} | {cost_total} | {runtime_mean} | {perfect} | {parse_fail} | {metadata_fail} | {missing_metric_fail} | {validation_fail} | {tool_fail} | {policy_fail} |".format(
+                "| {task} | {mode} | {reasoning_effort} | {service_tier} | {web_search} | {timeouts} | {samples} | {reward_mean} | {reward_std} | {reward_min} | {reward_max} | {acc_mean} | {state_mean} | {service_mean} | {input_tokens} | {output_tokens} | {total_tokens} | {cost_mean} | {cost_total} | {runtime_mean} | {perfect} | {parse_fail} | {metadata_fail} | {missing_metric_fail} | {validation_fail} | {tool_fail} | {policy_fail} |".format(
                     task=task["taskId"],
                     mode=arm["mode"],
                     reasoning_effort=", ".join(aggregate["reasoningEfforts"]) or "n/a",
+                    service_tier=", ".join(aggregate["serviceTiers"]) or "standard",
                     web_search=", ".join(aggregate["codexWebSearchPolicies"]) or "n/a",
                     timeouts=", ".join(aggregate["timeoutLabels"]) or "n/a",
                     samples=aggregate["samples"],
