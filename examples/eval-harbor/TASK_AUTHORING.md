@@ -55,6 +55,7 @@ python3 examples/eval-harbor/scripts/build_dataset_suite.py \
   --stage-schedule U,T \
   --model gpt-5.5 \
   --reasoning-effort medium \
+  --service-tier standard \
   --codex-web-search disabled \
   --tasks-root /tmp/cr-harbor/tasks \
   --jobs-root /tmp/cr-harbor/jobs \
@@ -175,10 +176,12 @@ Single-sample runs are diagnostic. Use repeated samples before making
 paper-facing performance claims, especially for long interleaved trajectories
 where agent behavior can vary across runs.
 
-`Reward`, `llmJudge.stateCompletion.meanScore`, `llmJudge.personalizedService.meanScore`,
-`inputTokens`, `outputTokens`, `totalTokens`, and `costUsd` are mandatory for
-DynamicMem logbook entries. If any of these fields are missing, mark the run
-incomplete and rerun it. Do not paste partial results into the experiment
+`Reward`, `llmJudge.stateCompletion.meanScore`,
+`llmJudge.personalizedService.meanScore`, `inputTokens`, `outputTokens`,
+`totalTokens`, and `costUsd` are mandatory for DynamicMem logbook entries.
+Model, reasoning effort, service tier, web-search policy, timeout settings, and
+sample count must also be recorded. If any mandatory metric is missing, mark the
+run incomplete and rerun it. Do not paste partial results into the experiment
 logbook as if they were complete.
 
 ## Adding Another Dataset

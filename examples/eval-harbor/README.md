@@ -105,6 +105,7 @@ python3 examples/eval-harbor/scripts/build_dataset_suite.py \
   --stage-schedule U,T \
   --model gpt-5.5 \
   --reasoning-effort medium \
+  --service-tier standard \
   --codex-web-search disabled \
   --tasks-root /tmp/cr-harbor/tasks \
   --jobs-root /tmp/cr-harbor/jobs \
@@ -112,8 +113,11 @@ python3 examples/eval-harbor/scripts/build_dataset_suite.py \
 ```
 
 The builder runs task and job preflight by default. It also records the selected
-model, reasoning effort, web-search policy, timeouts, source dataset metadata,
-and generated arms in the suite manifest.
+model, reasoning effort, service tier, web-search policy, timeouts, source
+dataset metadata, and generated arms in the suite manifest.
+
+Use `--service-tier priority` only when the experiment intentionally opts into
+Codex priority/fast service. The default is `standard`.
 
 Useful schedule examples:
 
@@ -186,8 +190,8 @@ python3 examples/eval-harbor/scripts/aggregate_resamples.py \
 
 The report summarizes reward, accuracy, state/service reward, token usage,
 cost, parse failures, metadata failures, validation failures, tool-policy
-failures, runtime, model, reasoning effort, web-search policy, and timeout
-settings. Official experiment reports must include token usage and cost. A run
+failures, runtime, model, reasoning effort, service tier, web-search policy,
+and timeout settings. Official experiment reports must include token usage and cost. A run
 with missing `inputTokens`, `outputTokens`, `totalTokens`, `costUsd`,
 `llmJudge.stateCompletion.meanScore`, or
 `llmJudge.personalizedService.meanScore` is incomplete and should be rerun rather

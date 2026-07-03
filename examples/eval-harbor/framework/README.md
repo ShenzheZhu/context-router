@@ -110,7 +110,7 @@ provided; deterministic state/service diagnostics are retained for debugging.
 Reports should make every experimental setting explicit:
 
 - dataset, task id, source user, checkpoint range, and stage schedule;
-- arm, model, reasoning effort, web-search policy, and timeout settings;
+- arm, model, reasoning effort, service tier, web-search policy, and timeout settings;
 - sample count and concurrency;
 - judge model and judge mode;
 - reward/accuracy statistics, LLM State Mean, LLM Service Mean, tokens, and cost;
