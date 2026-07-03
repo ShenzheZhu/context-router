@@ -728,7 +728,14 @@ def summarize_run(mode: str, path: Path) -> dict[str, Any]:
         or agent_config.get("model_auto_compact_token_limit")
         or "n/a"
     )
-    if (agent_config.get("name") or "").lower() == "codex" and codex_web_search != "disabled":
+    agent_label = str(
+        agent_info.get("name")
+        or agent_config.get("name")
+        or agent_config.get("import_path")
+        or ""
+    )
+    is_codex_agent = agent_label.lower() == "codex" or "codex" in agent_label.lower()
+    if is_codex_agent and codex_web_search != "disabled":
         validation_errors.append(
             f"Codex web_search must be disabled, got {codex_web_search!r}"
         )
@@ -756,13 +763,18 @@ def summarize_run(mode: str, path: Path) -> dict[str, Any]:
         "trialDir": str(trial_dir),
         "artifactRoot": str(artifact_root),
         "taskName": result.get("task_name"),
-        "agent": agent_info.get("name") or agent_config.get("name"),
+        "agent": agent_label or "n/a",
         "agentVersion": agent_info.get("version"),
         "model": model_info.get("name") or agent_config.get("model_name"),
         "reasoningEffort": (
             agent_kwargs.get("reasoning_effort")
             or agent_config.get("reasoning_effort")
             or "n/a"
+        ),
+        "serviceTier": (
+            agent_kwargs.get("service_tier")
+            or agent_config.get("service_tier")
+            or "standard"
         ),
         "codexWebSearch": codex_web_search,
         "codexAutoCompactTokenLimit": codex_auto_compact_token_limit,
@@ -849,16 +861,17 @@ def fmt_cost(value: Any) -> str:
 
 def markdown_table(rows: list[dict[str, Any]]) -> str:
     lines = [
-        "| Mode | Agent | Model | Reasoning Effort | Web Search | Timeout A/V/B (s) | Reward | Field Accuracy | LLM State Mean | LLM Service Mean | Input Tok | Output Tok | Total Tok | Cost | Parse Failures | Metadata | Missing | Wrong | Overfill | Policy Fail | Artifacts OK | Runtime (s) | Artifact Root |",
-        "| --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | --- |",
+        "| Mode | Agent | Model | Reasoning Effort | Service Tier | Web Search | Timeout A/V/B (s) | Reward | Field Accuracy | LLM State Mean | LLM Service Mean | Input Tok | Output Tok | Total Tok | Cost | Parse Failures | Metadata | Missing | Wrong | Overfill | Policy Fail | Artifacts OK | Runtime (s) | Artifact Root |",
+        "| --- | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | --- |",
     ]
     for row in rows:
         lines.append(
-            "| {mode} | {agent} | {model} | {reasoning_effort} | {web_search} | {timeouts} | {reward} | {field} | {state} | {service} | {input_tokens} | {output_tokens} | {total_tokens} | {cost} | {parse_failures} | {metadata} | {missing} | {wrong} | {overfill} | {policy_fail} | {artifacts_ok} | {runtime} | `{artifact}` |".format(
+            "| {mode} | {agent} | {model} | {reasoning_effort} | {service_tier} | {web_search} | {timeouts} | {reward} | {field} | {state} | {service} | {input_tokens} | {output_tokens} | {total_tokens} | {cost} | {parse_failures} | {metadata} | {missing} | {wrong} | {overfill} | {policy_fail} | {artifacts_ok} | {runtime} | `{artifact}` |".format(
                 mode=row["mode"],
                 agent=row["agent"],
                 model=row["model"],
                 reasoning_effort=row["reasoningEffort"],
+                service_tier=row["serviceTier"],
                 web_search=row["codexWebSearch"],
                 timeouts=fmt_timeout_triplet(row),
                 reward=fmt_value(row["reward"]),

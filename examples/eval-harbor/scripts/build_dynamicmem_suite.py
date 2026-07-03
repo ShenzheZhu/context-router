@@ -25,12 +25,14 @@ from trajectory_framework import (
 
 DEFAULT_MODEL = "gpt-5.4-mini"
 DEFAULT_REASONING_EFFORT = "high"
+DEFAULT_SERVICE_TIER = "standard"
 DEFAULT_CODEX_WEB_SEARCH = "disabled"
 DEFAULT_CODEX_AUTO_COMPACT_TOKEN_LIMIT = 256000
 DEFAULT_AGENT_TIMEOUT_SEC = 86400.0
 DEFAULT_VERIFIER_TIMEOUT_SEC = 86400.0
 DEFAULT_BUILD_TIMEOUT_SEC = 600.0
 REASONING_EFFORT_CHOICES = {"low", "medium", "high", "xhigh"}
+SERVICE_TIER_CHOICES = {"standard", "priority"}
 CODEX_WEB_SEARCH_CHOICES = {"disabled", "cached", "live"}
 DEFAULT_ARM_CONFIG_PATH = Path("examples/eval-harbor/arms/dynamicmem-default.json")
 
@@ -278,6 +280,7 @@ def generate_task(
     jobs_root: Path,
     model_name: str,
     reasoning_effort: str,
+    service_tier: str,
     codex_web_search: str,
     codex_auto_compact_token_limit: int,
     agent_timeout_sec: float,
@@ -299,6 +302,7 @@ def generate_task(
             checkpoint_indices=tuple(plan.checkpoint_indices),
             model_name=model_name,
             reasoning_effort=reasoning_effort,
+            service_tier=service_tier,
             codex_web_search=codex_web_search,
             codex_auto_compact_token_limit=codex_auto_compact_token_limit,
             agent_timeout_sec=agent_timeout_sec,
@@ -320,6 +324,7 @@ def write_suite_manifest(
     jobs_root: Path,
     model_name: str,
     reasoning_effort: str,
+    service_tier: str,
     codex_web_search: str,
     codex_auto_compact_token_limit: int,
     agent_timeout_sec: float,
@@ -352,12 +357,15 @@ def write_suite_manifest(
         },
         "modelName": model_name,
         "reasoningEffort": reasoning_effort,
+        "serviceTier": service_tier,
         "stagePatterns": sorted({plan.stage_pattern for plan in plans}),
         "agentConfig": {
             "agent": "codex",
             "modelName": model_name,
             "reasoningEffort": reasoning_effort,
             "reasoningEffortConfigKey": "model_reasoning_effort",
+            "serviceTier": service_tier,
+            "serviceTierConfigKey": "service_tier",
             "codexWebSearch": codex_web_search,
             "codexWebSearchConfigKey": "web_search",
             "codexAutoCompactTokenLimit": codex_auto_compact_token_limit,
@@ -385,6 +393,7 @@ def write_suite_manifest(
                 "instructionPath": arm["instructionPath"],
                 "compose": arm.get("compose", "staged"),
                 "reasoningEffort": reasoning_effort,
+                "serviceTier": service_tier,
                 "codexWebSearch": codex_web_search,
                 "codexAutoCompactTokenLimit": codex_auto_compact_token_limit,
                 "agentTimeoutSec": agent_timeout_sec,
@@ -499,6 +508,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=DEFAULT_REASONING_EFFORT,
         choices=sorted(REASONING_EFFORT_CHOICES),
         help="Codex reasoning effort written into every generated Harbor job.",
+    )
+    parser.add_argument(
+        "--service-tier",
+        default=DEFAULT_SERVICE_TIER,
+        choices=sorted(SERVICE_TIER_CHOICES),
+        help="Codex service_tier written into generated Harbor job kwargs when not standard.",
     )
     parser.add_argument(
         "--codex-web-search",
@@ -630,6 +645,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 jobs_root=args.jobs_root,
                 model_name=args.model,
                 reasoning_effort=args.reasoning_effort,
+                service_tier=args.service_tier,
                 codex_web_search=args.codex_web_search,
                 codex_auto_compact_token_limit=args.codex_auto_compact_token_limit,
                 agent_timeout_sec=args.agent_timeout_sec,
@@ -651,6 +667,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         jobs_root=args.jobs_root,
         model_name=args.model,
         reasoning_effort=args.reasoning_effort,
+        service_tier=args.service_tier,
         codex_web_search=args.codex_web_search,
         codex_auto_compact_token_limit=args.codex_auto_compact_token_limit,
         agent_timeout_sec=args.agent_timeout_sec,
