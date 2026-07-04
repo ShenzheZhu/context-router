@@ -207,10 +207,11 @@ python3 examples/eval-harbor/scripts/report_stage_token_usage.py \
   --detail
 ```
 
-This report attributes each Codex model-call step to the visible Harbor stage:
-`memory-update` for `U`, `downstream-task` for `T`, and `overhead` for stage
-reveal or post-stage bookkeeping. Dataset-specific internal task-family steps
-are implementation details of the adapter. Stage token counts are exact sums from
+This report attributes each Codex model-call step to the visible Harbor stage.
+For DynamicMem, public `T` probes are reported as their internal `state-task`
+and `service-task` buckets so reviewers can distinguish reconstruction cost
+from downstream application cost. Stage reveal and post-stage bookkeeping are
+reported as `overhead`. Stage token counts are exact sums from
 `agent/trajectory.json`. Per-stage cost is named `estimatedCostUsd` because
 Codex currently exposes cost as a whole-run total, so the stage report allocates
 it proportionally by total tokens.

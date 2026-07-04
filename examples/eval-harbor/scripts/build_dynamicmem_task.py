@@ -140,6 +140,12 @@ FALLBACK_ARM_CONFIGS = [
         "memoryMode": "markdown",
         "instructionPath": "examples/eval-harbor/modes/markdown.md",
         "compose": "staged",
+        "artifacts": [
+            {
+                "source": "/app/memory.md",
+                "destination": "memory/memory.md",
+            }
+        ],
     },
     {
         "mode": "cr-mcp",
@@ -2685,6 +2691,7 @@ python3 examples/eval-harbor/scripts/build_dynamicmem_task.py \\
   {render_stage_cli_arg(config)} \\
   --model {config.model_name} \\
   --reasoning-effort {config.reasoning_effort} \\
+  --service-tier {config.service_tier} \\
   --codex-web-search {config.codex_web_search} \\
   --agent-timeout-sec {config.agent_timeout_sec:g} \\
   --verifier-timeout-sec {config.verifier_timeout_sec:g} \\
